@@ -1,0 +1,220 @@
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { User, Mail, Phone, MapPin, Calendar, Shield, Camera, Edit } from 'lucide-react';
+import { toast } from 'sonner';
+
+export default function Profile() {
+  const [isEditing, setIsEditing] = useState(false);
+  const [profileData, setProfileData] = useState({
+    name: 'Demo User',
+    email: 'demo@tradepay.com',
+    phone: '+1 (555) 123-4567',
+    location: 'New York, USA',
+    bio: 'Experienced cryptocurrency trader and investor with 5+ years in the market.',
+    joinDate: '2019-03-15',
+    verified: true
+  });
+
+  const handleSave = () => {
+    toast.success('Profile updated successfully!');
+    setIsEditing(false);
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setProfileData(prev => ({ ...prev, [field]: value }));
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 text-white p-6">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">Profile</h1>
+          <p className="text-gray-300">Manage your account information and preferences</p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Profile Card */}
+          <Card className="bg-gray-800/50 border-gray-700">
+            <CardContent className="p-6">
+              <div className="flex flex-col items-center text-center">
+                <div className="relative mb-4">
+                  <Avatar className="w-24 h-24">
+                    <AvatarImage src="/api/placeholder/96/96" />
+                    <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xl">
+                      {profileData.name.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <Button
+                    size="sm"
+                    className="absolute -bottom-2 -right-2 rounded-full w-8 h-8 p-0 bg-blue-600 hover:bg-blue-700"
+                  >
+                    <Camera className="w-4 h-4" />
+                  </Button>
+                </div>
+                
+                <h2 className="text-xl font-bold text-white mb-1">{profileData.name}</h2>
+                <div className="flex items-center space-x-2 mb-4">
+                  <Badge className="bg-green-500/20 text-green-400">
+                    Premium Member
+                  </Badge>
+                  {profileData.verified && (
+                    <Badge className="bg-blue-500/20 text-blue-400">
+                      <Shield className="w-3 h-3 mr-1" />
+                      Verified
+                    </Badge>
+                  )}
+                </div>
+                
+                <p className="text-gray-400 text-sm mb-4">{profileData.bio}</p>
+                
+                <div className="w-full space-y-3 text-sm">
+                  <div className="flex items-center space-x-2 text-gray-300">
+                    <Mail className="w-4 h-4" />
+                    <span>{profileData.email}</span>
+                  </div>
+                  <div className="flex items-center space-x-2 text-gray-300">
+                    <Phone className="w-4 h-4" />
+                    <span>{profileData.phone}</span>
+                  </div>
+                  <div className="flex items-center space-x-2 text-gray-300">
+                    <MapPin className="w-4 h-4" />
+                    <span>{profileData.location}</span>
+                  </div>
+                  <div className="flex items-center space-x-2 text-gray-300">
+                    <Calendar className="w-4 h-4" />
+                    <span>Joined {new Date(profileData.joinDate).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Edit Profile Form */}
+          <div className="lg:col-span-2">
+            <Card className="bg-gray-800/50 border-gray-700">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-white">Profile Information</CardTitle>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsEditing(!isEditing)}
+                    className="border-gray-600 text-gray-300"
+                  >
+                    <Edit className="w-4 h-4 mr-2" />
+                    {isEditing ? 'Cancel' : 'Edit'}
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-gray-300">Full Name</Label>
+                      <Input
+                        value={profileData.name}
+                        onChange={(e) => handleInputChange('name', e.target.value)}
+                        disabled={!isEditing}
+                        className="bg-gray-700 border-gray-600 text-white mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-gray-300">Email Address</Label>
+                      <Input
+                        value={profileData.email}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        disabled={!isEditing}
+                        className="bg-gray-700 border-gray-600 text-white mt-1"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-gray-300">Phone Number</Label>
+                      <Input
+                        value={profileData.phone}
+                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                        disabled={!isEditing}
+                        className="bg-gray-700 border-gray-600 text-white mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-gray-300">Location</Label>
+                      <Input
+                        value={profileData.location}
+                        onChange={(e) => handleInputChange('location', e.target.value)}
+                        disabled={!isEditing}
+                        className="bg-gray-700 border-gray-600 text-white mt-1"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label className="text-gray-300">Bio</Label>
+                    <Textarea
+                      value={profileData.bio}
+                      onChange={(e) => handleInputChange('bio', e.target.value)}
+                      disabled={!isEditing}
+                      className="bg-gray-700 border-gray-600 text-white mt-1"
+                      rows={3}
+                    />
+                  </div>
+
+                  {isEditing && (
+                    <div className="flex space-x-4">
+                      <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700">
+                        Save Changes
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsEditing(false)}
+                        className="border-gray-600 text-gray-300"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Account Statistics */}
+            <Card className="bg-gray-800/50 border-gray-700 mt-6">
+              <CardHeader>
+                <CardTitle className="text-white">Account Statistics</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-green-400">$125,847</p>
+                    <p className="text-gray-400 text-sm">Total Balance</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-blue-400">1,247</p>
+                    <p className="text-gray-400 text-sm">Total Trades</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-yellow-400">73.2%</p>
+                    <p className="text-gray-400 text-sm">Win Rate</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-purple-400">5.2 years</p>
+                    <p className="text-gray-400 text-sm">Experience</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
