@@ -1,0 +1,291 @@
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { TrendingUp, TrendingDown, DollarSign, PieChart, BarChart3, Eye, EyeOff } from 'lucide-react';
+
+export default function Portfolio() {
+  const [showBalance, setShowBalance] = useState(true);
+
+  const portfolioData = {
+    totalValue: 125847.50,
+    todayChange: 3245.80,
+    todayChangePercent: 2.65,
+    totalInvested: 95000.00,
+    totalProfit: 30847.50,
+    profitPercent: 32.47
+  };
+
+  const holdings = [
+    {
+      symbol: 'BTC',
+      name: 'Bitcoin',
+      amount: 2.5,
+      value: 121325.00,
+      change: 2.5,
+      changePercent: 2.1,
+      allocation: 96.4
+    },
+    {
+      symbol: 'ETH',
+      name: 'Ethereum',
+      amount: 1.2,
+      value: 3894.60,
+      change: -45.20,
+      changePercent: -1.15,
+      allocation: 3.1
+    },
+    {
+      symbol: 'ADA',
+      name: 'Cardano',
+      amount: 500,
+      value: 625.00,
+      change: 12.50,
+      changePercent: 2.04,
+      allocation: 0.5
+    }
+  ];
+
+  const transactions = [
+    {
+      id: '1',
+      type: 'buy',
+      symbol: 'BTC',
+      amount: 0.5,
+      price: 48500,
+      value: 24250,
+      date: '2024-01-15',
+      time: '14:32:15'
+    },
+    {
+      id: '2',
+      type: 'sell',
+      symbol: 'ETH',
+      amount: 0.8,
+      price: 3200,
+      value: 2560,
+      date: '2024-01-14',
+      time: '10:15:42'
+    },
+    {
+      id: '3',
+      type: 'buy',
+      symbol: 'ADA',
+      amount: 200,
+      price: 1.25,
+      value: 250,
+      date: '2024-01-13',
+      time: '16:45:33'
+    }
+  ];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 text-white p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2">Portfolio</h1>
+            <p className="text-gray-300">Track your investment performance</p>
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => setShowBalance(!showBalance)}
+            className="border-gray-600 text-gray-300"
+          >
+            {showBalance ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
+            {showBalance ? 'Hide' : 'Show'} Balance
+          </Button>
+        </div>
+
+        {/* Portfolio Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card className="bg-gray-800/50 border-gray-700">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Total Portfolio Value</p>
+                  <p className="text-3xl font-bold text-white">
+                    {showBalance ? `$${portfolioData.totalValue.toLocaleString()}` : '••••••'}
+                  </p>
+                  <div className="flex items-center space-x-1 mt-1">
+                    <TrendingUp className="w-4 h-4 text-green-400" />
+                    <span className="text-green-400 text-sm">
+                      +${portfolioData.todayChange.toLocaleString()} ({portfolioData.todayChangePercent}%)
+                    </span>
+                  </div>
+                </div>
+                <DollarSign className="w-8 h-8 text-blue-400" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-800/50 border-gray-700">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Total Invested</p>
+                  <p className="text-2xl font-bold text-white">
+                    {showBalance ? `$${portfolioData.totalInvested.toLocaleString()}` : '••••••'}
+                  </p>
+                  <p className="text-gray-400 text-sm">Principal amount</p>
+                </div>
+                <BarChart3 className="w-8 h-8 text-purple-400" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-800/50 border-gray-700">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Total Profit</p>
+                  <p className="text-2xl font-bold text-green-400">
+                    {showBalance ? `+$${portfolioData.totalProfit.toLocaleString()}` : '••••••'}
+                  </p>
+                  <p className="text-green-400 text-sm">+{portfolioData.profitPercent}% ROI</p>
+                </div>
+                <TrendingUp className="w-8 h-8 text-green-400" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          {/* Holdings */}
+          <Card className="xl:col-span-2 bg-gray-800/50 border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-white">Your Holdings</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {holdings.map((holding, index) => (
+                  <div key={index} className="p-4 bg-gray-700/50 rounded-lg">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                          <span className="text-white font-bold text-sm">{holding.symbol}</span>
+                        </div>
+                        <div>
+                          <h3 className="text-white font-semibold">{holding.name}</h3>
+                          <p className="text-gray-400 text-sm">{holding.symbol}</p>
+                        </div>
+                      </div>
+                      <Badge className="bg-blue-500/20 text-blue-400">
+                        {holding.allocation}%
+                      </Badge>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <p className="text-gray-400">Amount</p>
+                        <p className="text-white font-medium">{holding.amount} {holding.symbol}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400">Value</p>
+                        <p className="text-white font-medium">
+                          {showBalance ? `$${holding.value.toLocaleString()}` : '••••••'}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400">24h Change</p>
+                        <div className="flex items-center space-x-1">
+                          {holding.change >= 0 ? (
+                            <TrendingUp className="w-3 h-3 text-green-400" />
+                          ) : (
+                            <TrendingDown className="w-3 h-3 text-red-400" />
+                          )}
+                          <span className={holding.change >= 0 ? 'text-green-400' : 'text-red-400'}>
+                            {holding.change >= 0 ? '+' : ''}{holding.changePercent}%
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6 flex space-x-3">
+                <Button className="bg-blue-600 hover:bg-blue-700">
+                  Buy More
+                </Button>
+                <Button variant="outline" className="border-gray-600 text-gray-300">
+                  Rebalance Portfolio
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Portfolio Allocation & Recent Transactions */}
+          <div className="space-y-6">
+            {/* Portfolio Allocation */}
+            <Card className="bg-gray-800/50 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <PieChart className="w-5 h-5 mr-2" />
+                  Allocation
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {holdings.map((holding, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"></div>
+                        <span className="text-white text-sm">{holding.symbol}</span>
+                      </div>
+                      <span className="text-gray-300 text-sm">{holding.allocation}%</span>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="mt-6">
+                  <div className="w-full bg-gray-700 rounded-full h-2">
+                    <div className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full" style={{width: '96.4%'}}></div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Transactions */}
+            <Card className="bg-gray-800/50 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white">Recent Transactions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {transactions.map((tx) => (
+                    <div key={tx.id} className="p-3 bg-gray-700/50 rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center space-x-2">
+                          <Badge className={tx.type === 'buy' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}>
+                            {tx.type.toUpperCase()}
+                          </Badge>
+                          <span className="text-white text-sm font-medium">{tx.symbol}</span>
+                        </div>
+                        <span className="text-gray-400 text-xs">{tx.date}</span>
+                      </div>
+                      
+                      <div className="flex justify-between text-sm">
+                        <div>
+                          <p className="text-gray-400">Amount: {tx.amount}</p>
+                          <p className="text-gray-400">Price: ${tx.price.toLocaleString()}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-white font-medium">
+                            {showBalance ? `$${tx.value.toLocaleString()}` : '••••••'}
+                          </p>
+                          <p className="text-gray-400 text-xs">{tx.time}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
