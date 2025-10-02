@@ -1,0 +1,367 @@
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Search, 
+  Filter, 
+  Download, 
+  ArrowUpRight, 
+  ArrowDownLeft,
+  Calendar,
+  TrendingUp,
+  Wallet
+} from 'lucide-react';
+import { toast } from 'sonner';
+import Sidebar from '@/components/Sidebar';
+
+interface Transaction {
+  id: string;
+  type: 'deposit' | 'withdrawal' | 'investment' | 'profit' | 'trading';
+  amount: number;
+  status: 'completed' | 'pending' | 'failed';
+  date: string;
+  description: string;
+  reference?: string;
+}
+
+export default function TransactionHistory() {
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [currentUser, setCurrentUser] = useState<Record<string, unknown>>({});
+
+  useEffect(() => {
+    // Load user data
+    const userData = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    setCurrentUser(userData);
+
+    // Generate mock transaction data
+    const mockTransactions: Transaction[] = [
+      {
+        id: 'TXN001',
+        type: 'deposit',
+        amount: 50000,
+        status: 'completed',
+        date: '2024-01-15T10:30:00Z',
+        description: 'Bank transfer deposit',
+        reference: 'REF123456'
+      },
+      {
+        id: 'TXN002',
+        type: 'investment',
+        amount: 25000,
+        status: 'completed',
+        date: '2024-01-16T14:20:00Z',
+        description: 'Gold Plan Investment',
+        reference: 'INV789012'
+      },
+      {
+        id: 'TXN003',
+        type: 'profit',
+        amount: 12500,
+        status: 'completed',
+        date: '2024-01-18T16:45:00Z',
+        description: 'Investment profit - Gold Plan',
+        reference: 'PRF345678'
+      },
+      {
+        id: 'TXN004',
+        type: 'trading',
+        amount: 8750,
+        status: 'completed',
+        date: '2024-01-20T09:15:00Z',
+        description: 'Auto trading bot profit',
+        reference: 'TRD901234'
+      },
+      {
+        id: 'TXN005',
+        type: 'withdrawal',
+        amount: 15000,
+        status: 'pending',
+        date: '2024-01-22T11:30:00Z',
+        description: 'Bank withdrawal request',
+        reference: 'WTH567890'
+      },
+      {
+        id: 'TXN006',
+        type: 'deposit',
+        amount: 30000,
+        status: 'completed',
+        date: '2024-01-25T13:45:00Z',
+        description: 'UPI deposit',
+        reference: 'UPI123789'
+      }
+    ];
+
+    setTransactions(mockTransactions);
+    setFilteredTransactions(mockTransactions);
+  }, []);
+
+  useEffect(() => {
+    // Filter transactions based on search and filters
+    const filtered = transactions.filter((transaction: Transaction) => {
+      const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           transaction.reference?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           transaction.id.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesType = filterType === 'all' || transaction.type === filterType;
+      const matchesStatus = filterStatus === 'all' || transaction.status === filterStatus;
+      
+      return matchesSearch && matchesType && matchesStatus;
+    });
+
+    setFilteredTransactions(filtered);
+  }, [searchTerm, filterType, filterStatus, transactions]);
+
+  const getTransactionIcon = (type: string) => {
+    switch (type) {
+      case 'deposit':
+        return <ArrowDownLeft className="w-4 h-4 text-green-500" />;
+      case 'withdrawal':
+        return <ArrowUpRight className="w-4 h-4 text-red-500" />;
+      case 'investment':
+        return <TrendingUp className="w-4 h-4 text-blue-500" />;
+      case 'profit':
+        return <Wallet className="w-4 h-4 text-purple-500" />;
+      case 'trading':
+        return <TrendingUp className="w-4 h-4 text-orange-500" />;
+      default:
+        return <Wallet className="w-4 h-4 text-gray-500" />;
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return <Badge className="bg-green-600 text-white">Completed</Badge>;
+      case 'pending':
+        return <Badge className="bg-yellow-600 text-white">Pending</Badge>;
+      case 'failed':
+        return <Badge className="bg-red-600 text-white">Failed</Badge>;
+      default:
+        return <Badge className="bg-gray-600 text-white">Unknown</Badge>;
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const exportTransactions = () => {
+    const csvContent = [
+      ['ID', 'Type', 'Amount', 'Status', 'Date', 'Description', 'Reference'],
+      ...filteredTransactions.map((t: Transaction) => [
+        t.id,
+        t.type,
+        t.amount.toString(),
+        t.status,
+        t.date,
+        t.description,
+        t.reference || ''
+      ])
+    ].map(row => row.join(',')).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `transactions-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    
+    toast.success('Transaction history exported successfully!');
+  };
+
+  const totalDeposits = transactions
+    .filter((t: Transaction) => t.type === 'deposit' && t.status === 'completed')
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const totalWithdrawals = transactions
+    .filter((t: Transaction) => t.type === 'withdrawal' && t.status === 'completed')
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const totalProfits = transactions
+    .filter((t: Transaction) => (t.type === 'profit' || t.type === 'trading') && t.status === 'completed')
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 flex">
+      <Sidebar />
+      
+      <div className="flex-1 ml-64 p-4 lg:p-8">
+        <div className="max-w-6xl mx-auto space-y-6">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-white mb-2">Transaction History</h1>
+              <p className="text-blue-200">View and manage all your transactions</p>
+            </div>
+            <Button onClick={exportTransactions} className="bg-green-600 hover:bg-green-700">
+              <Download className="w-4 h-4 mr-2" />
+              Export CSV
+            </Button>
+          </div>
+
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="bg-gray-800 border-gray-700">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+                    <ArrowDownLeft className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Total Deposits</p>
+                    <p className="text-2xl font-bold text-white">₹{totalDeposits.toLocaleString('en-IN')}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gray-800 border-gray-700">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center">
+                    <ArrowUpRight className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Total Withdrawals</p>
+                    <p className="text-2xl font-bold text-white">₹{totalWithdrawals.toLocaleString('en-IN')}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gray-800 border-gray-700">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Total Profits</p>
+                    <p className="text-2xl font-bold text-white">₹{totalProfits.toLocaleString('en-IN')}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Filters */}
+          <Card className="bg-gray-800 border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Filter className="w-5 h-5" />
+                Filter Transactions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Search transactions..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                  />
+                </div>
+                
+                <select
+                  value={filterType}
+                  onChange={(e) => setFilterType(e.target.value)}
+                  className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white"
+                >
+                  <option value="all">All Types</option>
+                  <option value="deposit">Deposits</option>
+                  <option value="withdrawal">Withdrawals</option>
+                  <option value="investment">Investments</option>
+                  <option value="profit">Profits</option>
+                  <option value="trading">Trading</option>
+                </select>
+                
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white"
+                >
+                  <option value="all">All Status</option>
+                  <option value="completed">Completed</option>
+                  <option value="pending">Pending</option>
+                  <option value="failed">Failed</option>
+                </select>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Transaction List */}
+          <Card className="bg-gray-800 border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Calendar className="w-5 h-5" />
+                Recent Transactions ({filteredTransactions.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {filteredTransactions.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-gray-400">No transactions found matching your criteria.</p>
+                  </div>
+                ) : (
+                  filteredTransactions.map((transaction: Transaction) => (
+                    <div key={transaction.id} className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
+                      <div className="flex items-center space-x-4">
+                        {getTransactionIcon(transaction.type)}
+                        <div>
+                          <p className="text-white font-medium">{transaction.description}</p>
+                          <div className="flex items-center space-x-2 text-sm text-gray-400">
+                            <span>{transaction.id}</span>
+                            {transaction.reference && (
+                              <>
+                                <span>•</span>
+                                <span>{transaction.reference}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="text-right">
+                        <div className="flex items-center space-x-3">
+                          <div>
+                            <p className={`font-bold ${
+                              transaction.type === 'deposit' || transaction.type === 'profit' || transaction.type === 'trading'
+                                ? 'text-green-400' 
+                                : 'text-red-400'
+                            }`}>
+                              {transaction.type === 'deposit' || transaction.type === 'profit' || transaction.type === 'trading' ? '+' : '-'}
+                              ₹{transaction.amount.toLocaleString('en-IN')}
+                            </p>
+                            <p className="text-gray-400 text-sm">{formatDate(transaction.date)}</p>
+                          </div>
+                          {getStatusBadge(transaction.status)}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
