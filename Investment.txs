@@ -1,0 +1,275 @@
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { TrendingUp, TrendingDown, Search, Filter, Calendar, DollarSign } from 'lucide-react';
+
+export default function Investments() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+
+  const investments = [
+    {
+      id: 'INV001',
+      plan: 'Bitcoin Premium Plan',
+      amount: '$10,000',
+      currentValue: '$12,450',
+      profit: '+$2,450',
+      profitPercent: '+24.5%',
+      status: 'active',
+      startDate: '2024-01-15',
+      endDate: '2024-04-15',
+      duration: '90 days',
+      apy: '32.5%'
+    },
+    {
+      id: 'INV002',
+      plan: 'Ethereum Growth Plan',
+      amount: '$5,000',
+      currentValue: '$5,890',
+      profit: '+$890',
+      profitPercent: '+17.8%',
+      status: 'active',
+      startDate: '2024-02-01',
+      endDate: '2024-05-01',
+      duration: '90 days',
+      apy: '23.7%'
+    },
+    {
+      id: 'INV003',
+      plan: 'Altcoin Diversified Plan',
+      amount: '$7,500',
+      currentValue: '$8,125',
+      profit: '+$625',
+      profitPercent: '+8.3%',
+      status: 'active',
+      startDate: '2024-02-15',
+      endDate: '2024-05-15',
+      duration: '90 days',
+      apy: '11.1%'
+    },
+    {
+      id: 'INV004',
+      plan: 'Stable Yield Plan',
+      amount: '$15,000',
+      currentValue: '$15,750',
+      profit: '+$750',
+      profitPercent: '+5.0%',
+      status: 'completed',
+      startDate: '2023-11-01',
+      endDate: '2024-02-01',
+      duration: '90 days',
+      apy: '20.0%'
+    },
+    {
+      id: 'INV005',
+      plan: 'High Risk High Reward',
+      amount: '$3,000',
+      currentValue: '$2,650',
+      profit: '-$350',
+      profitPercent: '-11.7%',
+      status: 'active',
+      startDate: '2024-03-01',
+      endDate: '2024-06-01',
+      duration: '90 days',
+      apy: '-15.6%'
+    }
+  ];
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'bg-green-500/20 text-green-400';
+      case 'completed': return 'bg-blue-500/20 text-blue-400';
+      case 'paused': return 'bg-yellow-500/20 text-yellow-400';
+      case 'cancelled': return 'bg-red-500/20 text-red-400';
+      default: return 'bg-gray-500/20 text-gray-400';
+    }
+  };
+
+  const filteredInvestments = investments.filter(investment => {
+    const matchesSearch = investment.plan.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         investment.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = filterStatus === 'all' || investment.status === filterStatus;
+    return matchesSearch && matchesFilter;
+  });
+
+  const totalInvested = investments.reduce((sum, inv) => sum + parseFloat(inv.amount.replace('$', '').replace(',', '')), 0);
+  const totalCurrentValue = investments.reduce((sum, inv) => sum + parseFloat(inv.currentValue.replace('$', '').replace(',', '')), 0);
+  const totalProfit = totalCurrentValue - totalInvested;
+  const totalProfitPercent = ((totalProfit / totalInvested) * 100);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 text-white p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">Investment Records</h1>
+          <p className="text-gray-300">Track and manage all your investment positions</p>
+        </div>
+
+        {/* Investment Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card className="bg-gray-800/50 border-gray-700">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Total Invested</p>
+                  <p className="text-2xl font-bold text-white">${totalInvested.toLocaleString()}</p>
+                  <p className="text-blue-400 text-sm">5 investments</p>
+                </div>
+                <DollarSign className="w-8 h-8 text-blue-400" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-800/50 border-gray-700">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Current Value</p>
+                  <p className="text-2xl font-bold text-white">${totalCurrentValue.toLocaleString()}</p>
+                  <p className="text-green-400 text-sm">Portfolio value</p>
+                </div>
+                <TrendingUp className="w-8 h-8 text-green-400" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-800/50 border-gray-700">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Total Profit</p>
+                  <p className={`text-2xl font-bold ${totalProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {totalProfit >= 0 ? '+' : ''}${totalProfit.toLocaleString()}
+                  </p>
+                  <p className={`text-sm ${totalProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {totalProfit >= 0 ? '+' : ''}{totalProfitPercent.toFixed(2)}%
+                  </p>
+                </div>
+                {totalProfit >= 0 ? 
+                  <TrendingUp className="w-8 h-8 text-green-400" /> :
+                  <TrendingDown className="w-8 h-8 text-red-400" />
+                }
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-800/50 border-gray-700">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Active Plans</p>
+                  <p className="text-2xl font-bold text-white">4</p>
+                  <p className="text-yellow-400 text-sm">1 completed</p>
+                </div>
+                <Calendar className="w-8 h-8 text-yellow-400" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Search and Filters */}
+        <Card className="bg-gray-800/50 border-gray-700 mb-8">
+          <CardHeader>
+            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  placeholder="Search investments..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 bg-gray-700 border-gray-600 text-white"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                  <SelectTrigger className="w-40 bg-gray-700 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-700 border-gray-600">
+                    <SelectItem value="all" className="text-white">All Status</SelectItem>
+                    <SelectItem value="active" className="text-white">Active</SelectItem>
+                    <SelectItem value="completed" className="text-white">Completed</SelectItem>
+                    <SelectItem value="paused" className="text-white">Paused</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Investment Records Table */}
+        <Card className="bg-gray-800/50 border-gray-700">
+          <CardHeader>
+            <CardTitle className="text-white">Investment History</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-700">
+                    <th className="text-left py-3 px-4 text-gray-400 font-medium">ID</th>
+                    <th className="text-left py-3 px-4 text-gray-400 font-medium">Plan</th>
+                    <th className="text-right py-3 px-4 text-gray-400 font-medium">Invested</th>
+                    <th className="text-right py-3 px-4 text-gray-400 font-medium">Current Value</th>
+                    <th className="text-right py-3 px-4 text-gray-400 font-medium">Profit/Loss</th>
+                    <th className="text-center py-3 px-4 text-gray-400 font-medium">Status</th>
+                    <th className="text-center py-3 px-4 text-gray-400 font-medium">Duration</th>
+                    <th className="text-right py-3 px-4 text-gray-400 font-medium">APY</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredInvestments.map((investment) => (
+                    <tr key={investment.id} className="border-b border-gray-700/50 hover:bg-gray-700/30">
+                      <td className="py-4 px-4">
+                        <span className="text-blue-400 font-mono text-sm">{investment.id}</span>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div>
+                          <div className="text-white font-medium">{investment.plan}</div>
+                          <div className="text-gray-400 text-sm">
+                            {investment.startDate} - {investment.endDate}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4 text-right">
+                        <div className="text-white font-medium">{investment.amount}</div>
+                      </td>
+                      <td className="py-4 px-4 text-right">
+                        <div className="text-white font-medium">{investment.currentValue}</div>
+                      </td>
+                      <td className="py-4 px-4 text-right">
+                        <div className={`font-medium ${investment.profit.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
+                          {investment.profit}
+                        </div>
+                        <div className={`text-sm ${investment.profit.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
+                          {investment.profitPercent}
+                        </div>
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <Badge className={getStatusColor(investment.status)}>
+                          {investment.status}
+                        </Badge>
+                      </td>
+                      <td className="py-4 px-4 text-center text-gray-300">
+                        {investment.duration}
+                      </td>
+                      <td className="py-4 px-4 text-right">
+                        <span className={`font-medium ${investment.apy.startsWith('-') ? 'text-red-400' : 'text-green-400'}`}>
+                          {investment.apy}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
