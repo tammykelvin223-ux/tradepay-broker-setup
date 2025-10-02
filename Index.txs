@@ -1,0 +1,79 @@
+import { useState } from 'react';
+import Sidebar from '@/components/Sidebar';
+import MobileNav from '@/components/MobileNav';
+import AccountBalance from '@/components/AccountBalance';
+import TradingChart from '@/components/TradingChart';
+import TradingHistory from '@/components/TradingHistory';
+import QuickActions from '@/components/QuickActions';
+import InvestmentPlans from '@/components/InvestmentPlans';
+import SupportChat from '@/components/SupportChat';
+import ProfileDropdown from '@/components/ProfileDropdown';
+import NotificationDropdown from '@/components/NotificationDropdown';
+
+export default function Index() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900">
+      {/* Sidebar - Always rendered */}
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      
+      {/* Header with Profile */}
+      <div className="relative z-10 bg-gray-900/80 backdrop-blur-sm border-b border-gray-700 lg:ml-80">
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center space-x-4">
+            <MobileNav onMenuClick={() => setSidebarOpen(true)} />
+            <h1 className="text-xl font-bold text-white lg:hidden">TradePay Global</h1>
+          </div>
+          <div className="flex items-center space-x-3">
+            <NotificationDropdown />
+            <ProfileDropdown />
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="lg:ml-80">
+        <div className="p-4 lg:p-8">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">
+              Welcome to TradePay Global
+            </h1>
+            <p className="text-blue-200">
+              Your comprehensive trading and investment platform
+            </p>
+          </div>
+
+          {/* Account Balance */}
+          <div className="mb-8">
+            <AccountBalance />
+          </div>
+
+          {/* Quick Actions */}
+          <div className="mb-8">
+            <QuickActions />
+          </div>
+
+          {/* Investment Plans */}
+          <div className="mb-8">
+            <InvestmentPlans />
+          </div>
+
+          {/* Trading Section */}
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+            <div className="xl:col-span-2">
+              <TradingChart />
+            </div>
+            <div>
+              <TradingHistory />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Support Chat */}
+      <SupportChat />
+    </div>
+  );
+}
